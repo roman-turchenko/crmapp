@@ -1,0 +1,3 @@
+@ECHO OFF
+SET BIN_TARGET=yii
+php "%BIN_TARGET%" %*
