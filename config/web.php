@@ -12,5 +12,12 @@ return [
         'request' => [
             'cookieValidationKey' => 'you secret key here'
         ],
+
+        'urlManager' => [
+            'enablePrettyUrl' => true,
+            'showScriptName' => false
+        ],
+
+        'db' => require(__DIR__.'/db.php'),
     ],
 ];

@@ -27,4 +27,3 @@ class Customer{
         $this->birth_date = $birth_date;
     }
 }
-
