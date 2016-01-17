@@ -9,12 +9,15 @@
 namespace app\controllers;
 use app\models\customer\CustomerRecord;
 use app\models\customer\PhoneRecord;
+use yii\data\ArrayDataProvider;
 use yii\web\Controller;
 
 class CustomersController extends Controller{
 
     public function actionIndex(){
-        return "Customers index action";
+        //return "Customers index action";
+        $records = $this->findRecordsByQuery();
+        return $this->render('index', compact('records'));
     }
 
     public function actionAdd(){
@@ -28,6 +31,10 @@ class CustomersController extends Controller{
         }
 
         return $this->render('add', compact('customer', 'phone'));
+    }
+
+    public function actionQuery(){
+        return $this->render('query');
     }
 
     private function store(Customer $customer){
@@ -56,5 +63,38 @@ class CustomersController extends Controller{
         return $customer;
     }
 
+    private function load(CustomerRecord $customer, PhoneRecord $phone, array $post){
+        return $customer->load($post) and
+            $phone->load($post) and
+            $customer->validate() and
+            $phone->validate(['number']);
+    }
 
+    private function findRecordsByQuery(){
+        $number = Yii::$app->request->get('phone_number');
+        $records = $this->getRecordsByPhoneNumber($number);
+        $dataProvider = $this->wrapIntoDataProvider($records);
+        return $dataProvider;
+    }
+
+    private function getRecordsByPhoneNumber($number){
+        $phone_record = PhoneRecord::findOne(['number' => $number]);
+        if (!$phone_record)
+            return [];
+
+        $customer_record = CustomerRecord::findOne($phone_record->customer_id);
+        if (!$customer_record)
+            return [];
+
+        return [$this->makeCustomer($customer_record, $phone_record)];
+    }
+
+    private function wrapIntoDataProvider($data){
+        return new ArrayDataProvider(
+            [
+                'allModels' => $data,
+                'pagination' => false
+            ]
+        );
+    }
 }
